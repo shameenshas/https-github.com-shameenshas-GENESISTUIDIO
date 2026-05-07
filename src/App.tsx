@@ -58,48 +58,111 @@ function InnerApp() {
     [setEdges]
   );
 
+  const handleGenerateMedia = useCallback((id: string) => {
+    setNodes((nds) => nds.map((node) => {
+      if (node.id === id) {
+        let url = '';
+        const content = node.data.content;
+        
+        // Extract prompt from PIPELINE_PROMPT or node content
+        const promptMatch = content.match(/PIPELINE_PROMPT:\s*([^\n]+)/i);
+        const extractedPrompt = promptMatch ? promptMatch[1] : content.slice(0, 200);
+        const encodedPrompt = encodeURIComponent(extractedPrompt.trim() + ", minimalist black background, high contrast, cinematic lighting, GENESISTUDIO style");
+
+        if (node.data.type === 'image') {
+          url = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=true`;
+        } else if (node.data.type === 'video') {
+          // Video generation often requires specialized APIs, using a high-quality stock loop as proxy
+          url = 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-loop-3972-large.mp4';
+        } else if (node.data.type === 'music') {
+          url = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+        }
+        return { ...node, data: { ...node.data, url } };
+      }
+      return node;
+    }));
+  }, [setNodes]);
+
   const handleSendMessage = async (message: string) => {
     setIsLoading(true);
     try {
       const text = await chatWithBrain(message);
+      if (!text) throw new Error("No response from the Brain");
 
-      // Create a user node for the prompt
       const promptNodeId = uuidv4();
       const promptNode: Node<NodeData> = {
         id: promptNodeId,
         type: 'custom',
-        position: { x: Math.random() * 400, y: nodes.length * 100 + 200 },
+        position: { x: Math.random() * 400 - 200, y: nodes.length * 50 + 200 },
         data: { 
           type: 'text',
           content: message 
         },
       };
 
-      // Create an AI node for the response
-      const responseNodeId = uuidv4();
-      const responseNode: Node<NodeData> = {
-        id: responseNodeId,
-        type: 'custom',
-        position: { x: Math.random() * 400 + 350, y: nodes.length * 100 + 250 },
-        data: { 
-          type: 'brain',
-          content: text || "" 
-        },
-      };
+      // Smarter parsing: Look for markdown headers
+      const sections = text.split(/^#+\s+/m).filter(s => s.trim().length > 10);
+      const newNodes: Node<NodeData>[] = [];
+      const newEdges: Edge[] = [];
 
-      // Connect them
-      const newEdge: Edge = {
-        id: `e-${promptNodeId}-${responseNodeId}`,
-        source: promptNodeId,
-        target: responseNodeId,
-      };
+      sections.forEach((section, index) => {
+        const nodeId = uuidv4();
+        let type: NodeData['type'] = 'brain';
+        
+        const lowerSection = section.toLowerCase();
+        if (lowerSection.includes('type: image') || lowerSection.includes('[image]') || lowerSection.includes('shot_plan')) type = 'image';
+        if (lowerSection.includes('type: video') || lowerSection.includes('[video]')) type = 'video';
+        if (lowerSection.includes('type: music') || lowerSection.includes('[music]')) type = 'music';
+        if (lowerSection.includes('root_node')) type = 'brain';
 
-      setNodes((nds) => [...nds, promptNode, responseNode]);
-      setEdges((eds) => [...eds, newEdge]);
+        const node: Node<NodeData> = {
+          id: nodeId,
+          type: 'custom',
+          position: { 
+            x: (index * 350) - 200, 
+            y: nodes.length * 50 + 500 
+          },
+          data: { 
+            type,
+            content: section.trim(),
+            onGenerate: handleGenerateMedia
+          },
+        };
+
+        newNodes.push(node);
+        newEdges.push({
+          id: `e-${promptNodeId}-${nodeId}`,
+          source: promptNodeId,
+          target: nodeId,
+        });
+      });
+
+      if (newNodes.length === 0) {
+        const responseNodeId = uuidv4();
+        const responseNode: Node<NodeData> = {
+          id: responseNodeId,
+          type: 'custom',
+          position: { x: 350, y: nodes.length * 50 + 300 },
+          data: { 
+            type: 'brain',
+            content: text,
+            onGenerate: handleGenerateMedia
+          },
+        };
+        newNodes.push(responseNode);
+        newEdges.push({
+          id: `e-${promptNodeId}-${responseNodeId}`,
+          source: promptNodeId,
+          target: responseNodeId,
+        });
+      }
+
+      setNodes((nds) => [...nds, promptNode, ...newNodes]);
+      setEdges((eds) => [...eds, ...newEdges]);
 
     } catch (error) {
       console.error("Chat Error:", error);
-      alert("Error communicating with the Brain. Please check console.");
+      alert("Error communicating with the Brain.");
     } finally {
       setIsLoading(false);
     }

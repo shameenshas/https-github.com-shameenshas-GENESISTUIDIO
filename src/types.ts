@@ -1,12 +1,13 @@
 import { Node, Edge } from 'reactflow';
 
-export type NodeType = 'text' | 'image' | 'brain';
+export type NodeType = 'text' | 'image' | 'video' | 'music' | 'brain';
 
 export interface NodeData {
   label?: string;
   content: string;
   type: NodeType;
-  imageUrl?: string;
+  url?: string;
+  onGenerate?: (id: string) => void;
 }
 
 export interface StudioState {
