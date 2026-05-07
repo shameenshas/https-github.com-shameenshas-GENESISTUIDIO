@@ -1,10 +1,6 @@
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
-import { NodeData } from '../../types';
-import { Brain, FileText, Image as ImageIcon, X } from 'lucide-react';
-
-import React, { memo } from 'react';
 import { Handle, Position, NodeProps, useStore } from 'reactflow';
+import ReactMarkdown from 'react-markdown';
 import { NodeData } from '../../types';
 import { Brain, FileText, Image as ImageIcon } from 'lucide-react';
 
@@ -34,7 +30,7 @@ const CanvasNode: React.FC<NodeProps<NodeData>> = ({ data, id }) => {
   }
 
   return (
-    <div className="min-w-[260px] max-w-[340px] bg-black border border-white/20 p-6 transition-all duration-300 hover:border-white/60 group">
+    <div className="min-w-[280px] max-w-[400px] bg-black border border-white/20 p-6 transition-all duration-300 hover:border-white/60 group">
       <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
         <div className="flex items-center gap-2">
           {getIcon()}
@@ -42,11 +38,11 @@ const CanvasNode: React.FC<NodeProps<NodeData>> = ({ data, id }) => {
             {data.type}
           </span>
         </div>
-        <span className="font-mono text-[8px] text-white/20">ID_{id.slice(0, 4)}</span>
+        <span className="font-mono text-[8px] text-white/20 uppercase tracking-widest">ID_{id.split('-')[0]}</span>
       </div>
       
-      <div className="font-sans text-sm leading-relaxed whitespace-pre-wrap text-white/90 font-light">
-        {data.content}
+      <div className="markdown-node prose prose-invert prose-sm max-w-none font-sans leading-relaxed text-white/90 font-light">
+        <ReactMarkdown>{data.content}</ReactMarkdown>
       </div>
 
       {data.imageUrl && (

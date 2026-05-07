@@ -24,7 +24,7 @@ const initialNodes: Node<NodeData>[] = [
     position: { x: 0, y: 0 },
     data: { 
       type: 'text',
-      content: 'GENESIS NODE: THE RABBIT SEED\n\nSubject: A Rabbit\nAction: Planting a seed\n\nAnalysis: The act of planting represents the beginning of a recursive cycle. The rabbit, small but intentional, triggers an event that will soon outgrow the canvas. This is the seed of our story.' 
+      content: '# GENESIS NODE: THE RABBIT SEED\n\n**Subject:** A Rabbit  \n**Action:** Planting a seed\n\n### ANALYSIS\nThe act of planting represents the beginning of a **recursive cycle**. The rabbit, small but intentional, triggers an event that will soon outgrow the canvas. This is the seed of our story.' 
     },
   },
 ];

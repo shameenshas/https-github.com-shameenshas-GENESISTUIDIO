@@ -59,7 +59,13 @@ body {
 ::-webkit-scrollbar-track {
   background: var(--gallery-white);
 }
-::-webkit-scrollbar-thumb {
-  background: var(--brutal-black);
-}
+/* Markdown styling inside nodes */
+.markdown-node h1 { font-family: 'Anton', sans-serif; font-size: 1.25rem; margin-top: 1rem; margin-bottom: 0.5rem; color: #00FF00; text-transform: uppercase; letter-spacing: -0.02em; }
+.markdown-node h2 { font-family: 'Anton', sans-serif; font-size: 1.1rem; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #00FF00; text-transform: uppercase; }
+.markdown-node h3 { font-weight: 600; font-size: 0.9rem; margin-top: 0.6rem; color: white; }
+.markdown-node p { margin-bottom: 0.75rem; }
+.markdown-node ul, .markdown-node ol { margin-left: 1rem; margin-bottom: 0.75rem; list-style-type: disc; }
+.markdown-node li { margin-bottom: 0.25rem; }
+.markdown-node strong { color: #00FF00; font-weight: 600; }
+.markdown-node blockquote { border-left: 2px solid #00FF00; padding-left: 0.75rem; color: rgba(255, 255, 255, 0.6); font-style: italic; }
 
